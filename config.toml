@@ -1,0 +1,64 @@
+# The URL the site will be built for
+base_url = "https://w4lspirit.github.io"
+
+
+theme = "ergo"
+
+title = "'This is not a blog.'  'Ceci n'est pas un blog.'"
+# a description; you can use markdown here if you like
+description="Wanted to share some POC/code snippet with context"
+default_language = "en"
+
+highlight_theme = "solarized-light"
+generate_feed = true
+feed_limit = 20
+
+# Whether to automatically compile all Sass files in the sass directory
+compile_sass = true
+
+# Whether to do syntax highlighting
+# Theme can be customised by setting the `highlight_theme` variable to a theme supported by Gutenberg
+highlight_code = true
+
+# Whether to build a search index to be used later on by a JavaScript library
+build_search_index = true
+[markdown]
+# Whether to do syntax highlighting
+# Theme can be customised by setting the `highlight_theme` variable to a theme supported by Zola
+highlight_code = true
+
+
+[extra]
+# theme options
+profile = "profile.svg" # the name of the profile picture in static/img/
+color_themes = ["dark", "default"]
+country_flags = true # Display languages as country flags. Defaults to false.
+
+[[extra.socials]]
+icon = "linkedin"
+icon_class = "fa"
+display = " "
+uri = "https://www.linkedin.com/in/ismael-hajy/?locale=en_US"
+
+[[extra.socials]]
+icon = "github"
+display = " "
+uri = "https://github.com/W4lspirit"
+
+[[extra.socials]]
+icon = "twitter"
+display = " "
+uri = "https://twitter.com/Walspirit"
+
+
+[extra.comments] # Optional
+repo = "insipx/Ergo"
+theme = "github-light"
+label = "comment" # Optional
+#issue_number = 1 # Specify either this or term
+term = "pathname"
+
+[extra.font_awesome]
+kit = "e307e34624"
+
+

@@ -1,0 +1,4 @@
+[submodule "themes/ergo"]
+	path = themes/ergo
+	url = https://github.com/insipx/Ergo.git
+	branch = master

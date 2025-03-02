@@ -1,0 +1,21 @@
+# The URL the site will be built for
+base_url = "https://w4lspirit.github.io"
+
+
+theme = "apollo"
+taxonomies = [{ name = "tags" }]
+
+title = "'This is not a blog.'  'Ceci n'est pas un blog.'"
+# a description; you can use markdown here if you like
+description="Wanted to share some POC/code snippet with context"
+default_language = "en"
+
+[extra]
+theme = "auto"
+socials = [
+    { name = "github", url = "https://github.com/W4lspirit", icon = "github" },
+    { name = "linkedin", url = "https://www.linkedin.com/in/ismael-hajy/?locale=en_US", icon = "linkedin" },
+]
+menu = [
+    # Configure menu bar here
+]

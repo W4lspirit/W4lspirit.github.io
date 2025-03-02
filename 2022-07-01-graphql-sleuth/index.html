@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en" class="dark light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="base" content="https:&#x2F;&#x2F;w4lspirit.github.io">
+
+    
+
+    
+    
+    
+    <title>
+         Graphql Java Instrumentation
+        
+    </title>
+
+        
+            <meta property="og:title" content="Graphql Java Instrumentation" />
+        
+     
+
+     
+         
+             <meta property="og:description" content="Wanted to share some POC&#x2F;code snippet with context" />
+         
+     
+
+     
+         
+             <meta name="description" content="Wanted to share some POC&#x2F;code snippet with context" />
+         
+    
+
+    
+    
+
+    
+    
+        <link href=https://w4lspirit.github.io/fonts.css rel="stylesheet" />
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+    <link rel="alternate" type="application/atom+xml" title="&#x27;This is not a blog.&#x27;  &#x27;Ceci n&#x27;est pas un blog.&#x27;" href="https://w4lspirit.github.io/atom.xml">
+
+
+    
+    
+        <link rel="stylesheet" type="text/css" href=https://w4lspirit.github.io/theme/light.css />
+        <link rel="stylesheet" type="text/css" href="https://w4lspirit.github.io/theme/dark.css" media="(prefers-color-scheme: dark)" />
+    
+
+    <!-- Set the correct theme in the script -->
+
+    
+        <script src=https://w4lspirit.github.io/js/themetoggle.js></script>
+
+        
+            <script>
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    setTheme("dark");
+                } else {
+                    setTheme("light");
+                }
+            </script>
+        
+    
+
+
+    <link rel="stylesheet" type="text/css" media="screen" href=https://w4lspirit.github.io/main.css />
+
+    
+
+    <script src=https://w4lspirit.github.io/js/mermaid.js></script>
+
+    </head>
+
+
+<body>
+    <div class="content">
+        <header>
+    <div class="main">
+        
+            <a href=https:&#x2F;&#x2F;w4lspirit.github.io>&#x27;This is not a blog.&#x27;  &#x27;Ceci n&#x27;est pas un blog.&#x27;</a>
+        
+
+
+        <div class="socials">
+            
+            <a rel="me" href="https:&#x2F;&#x2F;github.com&#x2F;W4lspirit" class="social">
+                <img alt=github src=https://w4lspirit.github.io/icons/social/github.svg>
+            </a>
+            
+            <a rel="me" href="https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;ismael-hajy&#x2F;?locale=en_US" class="social">
+                <img alt=linkedin src=https://w4lspirit.github.io/icons/social/linkedin.svg>
+            </a>
+            
+        </div>
+    </div>
+
+    <nav>
+        
+
+        
+
+        
+    </nav>
+</header>
+
+
+        
+        
+    
+<main>
+    <article>
+        <div class="title">
+            
+            
+    <div class="page-header">
+        Graphql Java Instrumentation<span class="primary-color" style="font-size: 1.6em">.</span>
+    </div>
+
+
+                <div class="meta">
+                    
+                        Posted on <time>2022-07-14</time>
+                    
+
+                    
+
+                    
+
+                    
+                        :: 765 Words
+                    
+
+                    
+                    
+
+                    
+                    
+
+                    
+
+                </div>
+        </div>
+
+        
+
+        
+        
+
+        <section class="body">
+            <h1 id="disclaimer">Disclaimer</h1>
+<p>This is my first blog post. :D</p>
+<h1 id="context">Context</h1>
+<p>I just started a new project at work, where we need to provide GraphQL service for part of our 'Storage Engine'.</p>
+<p>In a previous project, I used <a href="https://sangria-graphql.github.io/">Sangria</a> a Scala Graphql implementation but since we
+are more of a Java/Spring-boot shop, we decided on using the <a href="https://netflix.github.io/dgs/">DGS Framework</a> which has
+been open-sourced by Netflix early 2021.</p>
+<p>DGS is built with SpringBoot &amp; <a href="https://github.com/graphql-java/graphql-java.">graphql-java</a> &amp; support the Spring Boot
+Reactive stack aka Webflux .</p>
+<h2 id="observability">Observability</h2>
+<p>All of our Spring Boot services have distributed tracing enabled
+via <a href="https://spring.io/projects/spring-cloud-sleuth">spring-cloud-starter-sleuth</a>.
+Spring Cloud Sleuth is a distributed tracing framework for Spring Boot and provide instrumentation on many
+libraries : <a href="https://github.com/spring-cloud/spring-cloud-sleuth/tree/3.1.x/spring-cloud-sleuth-instrumentation/src/main/java/org/springframework/cloud/sleuth/instrument">available instrumentation</a>
+.</p>
+<p>For example in this project, we are using Webflux, r2dbc-postgresql(<a href="https://r2dbc.io/">https://r2dbc.io/</a>) and
+transaction management which have been instrumented in Sleuth.</p>
+<p><em>Aparté (Aside)</em></p>
+<p>(not the cool bear you're looking for)</p>
+<blockquote>
+<p>I rely heavily on distributed traces to analyse bug/performance issues.</p>
+<p>In production these traces are sent to Jaeger, for local dev depending on the number of event generated and the
+sampling rate,
+I use Honeycomb or Grafana Loki/Tempo (via docker-compose)</p>
+</blockquote>
+<h1 id="problem">Problem</h1>
+<p>I wrote my integration tests for each use case and implemented the first graphql query.
+All the tests were failing (404 <em>not a good start</em>).</p>
+<p>In these integrations test, I was calling the server with GET request since that is how I was writing them for my
+Sangria project.</p>
+<p>Seems like DGS is not serving GET request.</p>
+<p>List of http endpoint exposed by the service :</p>
+<p><img src="/img/dgs_endpoint.png" alt="list of http endpoint exposed by the service" /></p>
+<p>Route definition in DGS :
+<img src="/img/dgs_route.png" alt="kotlin code showing the definition of the /POST route for path /graphql" /></p>
+<p>Switching to POST request, I was getting different errors (graphql-errors).</p>
+<p>I enabled the tracing in the integration tests to check if the different services were being called.</p>
+<blockquote>
+<p>Enabling tracing integration test helps me visualize all the different use case, it is much faster than debugging each
+test to see if it's calling the method A or B</p>
+</blockquote>
+<p>There was something strange in these traces, there was no information about the graphql query processed by the engine
+nor the trace of a call to the engine.</p>
+<p>I could only see the call to POST /graphql and the call to the database.</p>
+<p><em>(I did find the cause of the failing test and fix it)</em></p>
+<h1 id="research">Research</h1>
+<p>With a quick search on the DGS documentation,
+we have
+more <a href="https://netflix.github.io/dgs/advanced/instrumentation/#adding-instrumentation-for-tracing-and-logging">information</a>
+there is no default tracing implementation for the GraphQL engine.</p>
+<p>We must implement it by extending the SimpleInstrumentation from the graphql-java library.</p>
+<pre data-lang="java" class="language-java "><code class="language-java" data-lang="java">
+@Component
+public class ExampleTracingInstrumentation extends SimpleInstrumentation {
+}
+</code></pre>
+<p><em>Internal monolog</em></p>
+<p><em>Hmm maybe someone already did that for Sleuth</em></p>
+<p>I checked the issues and the list of available instrumentation in the Sleuth repository. I didn't find any .</p>
+<p>I searched on google nothing...</p>
+<p><em>Maybe someone else did it for another tracing framework, Open-telemetry(Otel) ?</em></p>
+<p><em>hmmm maybe I should check that.</em></p>
+<p>I searched 'opentelemetry graphql java' and found there was a maven artefact.</p>
+<p><img src="/img/search-opentelementry-graphql-java.png" alt="Search result" /></p>
+<p>I checked the GitHub repository and found the instrumentation code for graphql-java
+<a href="https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/main/instrumentation/graphql-java-12.0">https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/main/instrumentation/graphql-java-12.0</a></p>
+<h1 id="solution">Solution</h1>
+<p>Now I have an instrumentation for the GraphQL engine, I should be able to use it.</p>
+<p><em>Not so fast</em>, I need the instrumentation code to be compatible with Sleuth instrumentation &amp; API.</p>
+<p><em>I could write a bridge open-telemetry to Sleuth ?</em></p>
+<p><em>Bad idea!</em></p>
+<p>Thankfully this work is in progress by the Spring Cloud Team, but it's in the experimental
+repository <a href="https://github.com/spring-projects-experimental/spring-cloud-sleuth-otel">https://github.com/spring-projects-experimental/spring-cloud-sleuth-otel</a>
+.</p>
+<p>I should find another way, instead of creating a bridge I should translate the instrumentation code written with
+Open-telemetry Api with Sleuth API.</p>
+<p>The apis are not identical since Sleuth historically has inherited some design from OpenZikpin/Brave library /
+OpenTracing era and Open-telemetry being the new standard.</p>
+<p>The implementation is available bellow:</p>
+<script src="https://gist.github.com/W4lspirit/0844f010bafd0f065866892d14a6172c.js"></script>
+<p><img src="https://user-images.githubusercontent.com/13579472/176879927-ead26414-74b6-47ac-8060-cedfc12a82a4.png" alt="Trace with information about graphql query" /></p>
+<h1 id="the-end">The end</h1>
+<p>Just wanted to share a little about Graphql Java Instrumentation.</p>
+
+        </section>
+    </article>
+</main>
+
+
+
+        
+            
+        
+
+        
+    </div>
+</body>
+
+</html>

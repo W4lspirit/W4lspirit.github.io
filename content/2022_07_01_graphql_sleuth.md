@@ -68,7 +68,6 @@ I could only see the call to POST /graphql and the call to the database.
 
 _(I did find the cause of the failing test and fix it)_
 
-
 # Research
 
 With a quick search on the DGS documentation,
@@ -124,13 +123,12 @@ Open-telemetry Api with Sleuth API.
 The apis are not identical since Sleuth historically has inherited some design from OpenZikpin/Brave library /
 OpenTracing era and Open-telemetry being the new standard.
 
-
-
 The implementation is available bellow:
 
 <script src="https://gist.github.com/W4lspirit/0844f010bafd0f065866892d14a6172c.js"></script>
 
 ![Trace with information about graphql query](https://user-images.githubusercontent.com/13579472/176879927-ead26414-74b6-47ac-8060-cedfc12a82a4.png)
 
+# The end
 
 Just wanted to share a little about Graphql Java Instrumentation.
